@@ -1,57 +1,58 @@
 import { useState, ChangeEvent } from 'react';
 import './styles/app.css';
 import { FaArrowUp } from "react-icons/fa6";
+import QuestionsComponent from './components/InitialQuestions'
 import logo from './assets/InterviewBuddyLogo.png';
 
 const App: React.FC = () => {
 
-  const [language, setLanguage] = useState(''); 
-  const [topic, setTopic] = useState(''); 
-  const [difficulty, setDifficulty] = useState(''); 
   const [value, setValue] = useState<string>(''); 
-  const [response, setResponse] = useState<string>('')
+  const [questionsCompleted, setQuestionsCompleted] = useState<boolean>(false); 
+  const [response, setResponse] = useState<string>('');
   const [isHovered, setIsHovered] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
   }
 
-  const sendParameters = async () => {
-    if (!language || !topic || !difficulty) return; //! add error message
-    try {
-      const parameters = `Language: ${language}, Topic: ${topic}, Difficulty: ${difficulty}`;
-      const res = await fetch('https://api.openai.com/v1/chat/completions', { //! figure out link
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json', 
-        //   Authorization: `Bearer ${OPENAI_API_KEY}`, //! figure out api key
-        }, 
-        body: JSON.stringify({
-          model: "gpt-4o-mini", //! confirm model
-          messages: [{ role: "user", content: parameters}], //! confirm role
-        }),
-      });
-      const data = await res.json(); 
-      setResponse(data.choices?.[0].message.content); //! figure out format of response
-    } catch (error) {
-      console.error('Error fetching OpenAI API:', error); 
-    }
+  const updateResponse = (newResponse: string) => {
+    setResponse(newResponse); 
+    console.log('This is the newly updated response state:', response); 
   }
+
+  const handleQuestionsComponentState = (state: boolean) => {
+    setQuestionsCompleted(state); 
+    console.log('This is the updated questions state in the parent component:', questionsCompleted); 
+  }
+//   const sendParameters = async () => {
+//     if (!language || !topic || !difficulty) return; //! add error message
+//     try {
+//       const parameters = `Language: ${language}, Topic: ${topic}, Difficulty: ${difficulty}`;
+//       const res = await fetch('/openai-api', { //! figure out link
+//         method: 'POST', 
+//         headers: {
+//           'Content-Type': 'application/json', 
+//         }, 
+//         body: JSON.stringify({ parameters }), //! confirm 
+//       });
+//       const data = await res.json(); 
+//       setResponse(data); //! figure out format of response
+
+//     } catch (error) {
+//       console.error('Error fetching OpenAI API:', error); 
+//     }
+//   }
 
   const sendResponse = async () => {
     console.log('This is value:', value); 
     if (!value) return; //! add error message
     try {
-      const res = await fetch('link', { //! figure out link
+      const res = await fetch('/openai-api', { //! figure out link
         method: 'POST', 
         headers: {
           'Content-Type': 'application/json', 
-        //   Authorization: `Bearer ${OPENAI_API_KEY}`, //! figure out api key
         }, 
-        body: JSON.stringify({
-          model: "gpt-4", 
-          messages: [{ role: "user", content: value}], 
-        }),
+        body: JSON.stringify({ value }),
       });
       const data = await res.json(); 
       setResponse(data); //! figure out format of response
@@ -62,6 +63,18 @@ const App: React.FC = () => {
     }
   }
 
+//   const renderResponse = () => {
+//     if (!response) {
+//       return (
+
+//       )
+//     }
+
+//     return (
+
+//     )
+//   }
+
   return (
     <div>
       <h1 className="app-name">
@@ -71,12 +84,17 @@ const App: React.FC = () => {
         <div className="chat-area">
           <div className="content-wrapper">
             <div className="messages-container">
-            {/* <InitialQuestions /> */}
-            <div className="user-content">
+            {response}
+            {questionsCompleted}
+            <QuestionsComponent updateResponse={updateResponse} onStateChange={handleQuestionsComponentState}/>
+
+
+
+            {/* <div className="user-content">
               <p className="user-content-p">this is just filler text, blah blah blah. this is just filler text, blah blah blah. this is just filler text, blah blah blah. this is just filler text, blah blah blah.</p>
-            </div>
-            <div className="chat-content">
-                <div className="algo-header">
+            </div> */}
+            {/* <div className="chat-content"> */}
+                {/* <div className="algo-header">
                   <h3 className="chat-content-elems">Merge Intervals</h3>
                   <span className="difficulty chat-content-elems">medium</span>
                 </div>
@@ -150,11 +168,11 @@ function runTests() {
                       }
                     </code>
                   </pre>
-                </div>
-            </div>
-            <div className="user-content">
+                </div> */}
+            {/* </div> */}
+            {/* <div className="user-content">
               <p className="user-content-p">another line of filler text.</p>
-            </div>
+            </div> */}
           </div>
         </div>
         <div className="user-area">
