@@ -4,50 +4,73 @@ import { FaArrowUp } from "react-icons/fa6";
 import QuestionsComponent from './components/InitialQuestions'
 import logo from './assets/InterviewBuddyLogo.png';
 
+
 const App: React.FC = () => {
 
-  const [value, setValue] = useState<string>(''); 
+  const [userResponse, setUserResponse] = useState<string>(''); 
   const [questionsCompleted, setQuestionsCompleted] = useState<boolean>(false); 
-  const [response, setResponse] = useState<string>('');
+  const [chatResponse, setChatResponse] = useState<string>('');
+  const [chatHistory, setChatHistory] = useState([]); 
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    console.log('Updated response state variable in parent:', response);
-  }, [response]);
+    console.log('Updated chatResponse state variable in parent:', chatResponse);
+  }, [chatResponse]);
+
+  useEffect(() => {
+    console.log('Updated userResponse state variable in parent:', userResponse);
+  }, [userResponse]);
 
   useEffect(() => {
     console.log('Updated questionsCompleted state variable in parent:', questionsCompleted);
   }, [questionsCompleted]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(e.target.value);
+    setUserResponse(e.target.value);
   }
 
-  const updateResponse = (newResponse: string) => {
-    setResponse(newResponse); 
+  const updateChatResponse = (newResponse: string) => {
+    setChatResponse(newResponse); 
   }
 
   const handleQuestionsComponentState = (state: boolean) => {
     setQuestionsCompleted(state); 
   }
+  
+  const getSessionId = () => {
+    let sessionId = localStorage.getItem("sessionId")
+    if (!sessionId) {
+      sessionId = "session-" + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem("sessionId", sessionId);
+    }
+    return sessionId;
+  }
 
   const sendResponse = async () => {
-    console.log('This is value:', value); 
-    if (!value) return; //! add error message
+    console.log('This is value:', userResponse); 
+    if (!userResponse) return; //! add error message
+     
+    const sessionId = getSessionId();
+    
     try {
-      const res = await fetch('/openai-api', { //! figure out link
+      const userResponseInfo = {
+        sessionId,
+        userMessage: userResponse, 
+      }; 
+
+      const res = await fetch('/api/message', { 
         method: 'POST', 
         headers: {
           'Content-Type': 'application/json', 
         }, 
-        body: JSON.stringify({ value }),
+        body: JSON.stringify({ userResponseInfo }),
       });
       const data = await res.json(); 
-      setResponse(data); //! figure out format of response
-      setValue(''); 
+      setChatResponse(data);
+      setUserResponse(''); 
     } catch (error) {
       console.error('Error fetching OpenAI API:', error); 
-      setValue(''); 
+      setUserResponse(''); 
     }
   }
 
@@ -72,9 +95,9 @@ const App: React.FC = () => {
         <div className="chat-area">
           <div className="content-wrapper">
             <div className="messages-container">
-            {response}
+            {chatResponse}
             {questionsCompleted}
-            <QuestionsComponent updateResponse={updateResponse} onStateChange={handleQuestionsComponentState}/>
+            <QuestionsComponent updateChatResponse={updateChatResponse} onStateChange={handleQuestionsComponentState}/>
 
 
 
@@ -82,7 +105,7 @@ const App: React.FC = () => {
         </div>
         <div className="user-area">
           <div className="textarea-wrapper">
-            <textarea className="user-textarea" value={value} onChange={handleChange} placeholder='Reply to Buddy...'></textarea>
+            <textarea className="user-textarea" value={userResponse} onChange={handleChange} placeholder='Reply to Buddy...'></textarea>
           </div>
           <div className="button-wrapper">
             <button className="send-button" 

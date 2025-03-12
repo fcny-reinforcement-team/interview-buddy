@@ -14,13 +14,33 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export default {
-  mode: 'development',
   entry: {
-    main: path.resolve(__dirname, './client/index.tsx'),
+        main: path.resolve(__dirname, './client/index.tsx'),
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
+  },
+  mode: 'development',
+  devtool: 'eval-source-map',
+  devServer: {
+    host: 'localhost',
+    port: 3000,
+    static: {
+      directory: path.resolve(__dirname, 'dist'),
+    },
+    hot: true,
+    open: true,
+    historyApiFallback: true,
+    headers: { 'Access-Control-Allow-Origin': '*' },
+    proxy: [
+      {
+        context: ['/api'],
+        target: 'http://localhost:8081',
+        secure: false,
+        changeOrigin: true,
+      },
+    ],
   },
   module: {
     rules: [
@@ -39,16 +59,6 @@ export default {
         exclude: /node_modules/,
         use: ['ts-loader'],
       },
-    //   {
-    //     test: /\.module\.css$/,
-    //     use: [
-    //         MiniCssExtractPlugin.loader,
-    //       {
-    //         loader: 'css-loader',
-    //         options: { modules: true },
-    //       },
-    //     ],
-    //   },
       {
         test: /\.css$/,
         exclude: /\.module\.css$/,
@@ -73,21 +83,17 @@ export default {
   plugins: [
     new HtmlWebpackPlugin({
       template: './public/index.html',
-      filename: './index.html',
     }),
     new CopyPlugin({
         patterns: [{ from: './client/styles/app.css' }], 
     }), 
-    new Dotenv(),
-    new webpack.DefinePlugin({
-      'process.env.BACKEND_URL': JSON.stringify(process.env.BACKEND_URL || 'http://localhost:8081'),
-    }),
+    // new Dotenv(),
+    // new webpack.DefinePlugin({
+    //   'process.env.BACKEND_URL': JSON.stringify(process.env.BACKEND_URL || 'http://localhost:8081'),
+    // }),
     // new MiniCssExtractPlugin({
     //     filename: '[name].css', // Output CSS file names
     //     chunkFilename: '[id].css',
     //   }),
   ],
-  devServer: {
-    port: 8081,
-  },
 };

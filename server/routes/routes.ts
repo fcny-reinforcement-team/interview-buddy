@@ -19,10 +19,12 @@ const sessions: {
 } = {};
 
 router.post('/message', async (req: Request, res: Response) => {
-    const { sessionId, language, topic, difficulty, userMessage } = req.body;
+    console.log('This is the req body received from the frontend:', req.body); 
+    console.log('This is the sessionId received from the frontend:', req.body.sessionId); 
+    const { sessionId, language, topic, difficulty, userMessage } = req.body.parameters;
 
     if (!sessionId) {
-        return res.status(400).json({ error: "Missing sessionId. Start a new session first." });
+        return res.status(400).json({ error: `Missing sessionId. Start a new session first. ${req.body.sessionId}`});
     }
 
     // If it's a new session, initialize it
