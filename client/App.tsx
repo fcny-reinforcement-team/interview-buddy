@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import './styles/app.css';
 import { FaArrowUp } from "react-icons/fa6";
 import QuestionsComponent from './components/InitialQuestions'
@@ -11,37 +11,25 @@ const App: React.FC = () => {
   const [response, setResponse] = useState<string>('');
   const [isHovered, setIsHovered] = useState(false);
 
+  useEffect(() => {
+    console.log('Updated response state variable in parent:', response);
+  }, [response]);
+
+  useEffect(() => {
+    console.log('Updated questionsCompleted state variable in parent:', questionsCompleted);
+  }, [questionsCompleted]);
+
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
   }
 
   const updateResponse = (newResponse: string) => {
     setResponse(newResponse); 
-    console.log('This is the newly updated response state:', response); 
   }
 
   const handleQuestionsComponentState = (state: boolean) => {
     setQuestionsCompleted(state); 
-    console.log('This is the updated questions state in the parent component:', questionsCompleted); 
   }
-//   const sendParameters = async () => {
-//     if (!language || !topic || !difficulty) return; //! add error message
-//     try {
-//       const parameters = `Language: ${language}, Topic: ${topic}, Difficulty: ${difficulty}`;
-//       const res = await fetch('/openai-api', { //! figure out link
-//         method: 'POST', 
-//         headers: {
-//           'Content-Type': 'application/json', 
-//         }, 
-//         body: JSON.stringify({ parameters }), //! confirm 
-//       });
-//       const data = await res.json(); 
-//       setResponse(data); //! figure out format of response
-
-//     } catch (error) {
-//       console.error('Error fetching OpenAI API:', error); 
-//     }
-//   }
 
   const sendResponse = async () => {
     console.log('This is value:', value); 
@@ -87,6 +75,33 @@ const App: React.FC = () => {
             {response}
             {questionsCompleted}
             <QuestionsComponent updateResponse={updateResponse} onStateChange={handleQuestionsComponentState}/>
+
+
+
+          </div>
+        </div>
+        <div className="user-area">
+          <div className="textarea-wrapper">
+            <textarea className="user-textarea" value={value} onChange={handleChange} placeholder='Reply to Buddy...'></textarea>
+          </div>
+          <div className="button-wrapper">
+            <button className="send-button" 
+              onClick={sendResponse}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}>
+              <FaArrowUp style={{fontSize:'1.5em', strokeWidth: '2', backgroundColor: isHovered ? '#7c886a' : '#DBEFBC'}}/>
+            </button>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
+
+
 
 
 
@@ -173,25 +188,3 @@ function runTests() {
             {/* <div className="user-content">
               <p className="user-content-p">another line of filler text.</p>
             </div> */}
-          </div>
-        </div>
-        <div className="user-area">
-          <div className="textarea-wrapper">
-            <textarea className="user-textarea" value={value} onChange={handleChange} placeholder='Reply to Buddy...'></textarea>
-          </div>
-          <div className="button-wrapper">
-            <button className="send-button" 
-              onClick={sendResponse}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}>
-              <FaArrowUp style={{fontSize:'1.5em', strokeWidth: '2', backgroundColor: isHovered ? '#7c886a' : '#DBEFBC'}}/>
-            </button>
-          </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default App;
