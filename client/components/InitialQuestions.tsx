@@ -1,38 +1,43 @@
 import React, { useState, useEffect } from 'react';
+import '../styles/initialQuestions.css';
 
 export type Question= {
   text: string;
   options: string[];
-  colors?: string[];
+  colors: string[];
+  colorsHovered: string[]; 
 }
 
 interface ChildProps {
-  updateChatResponse: (newResponse: string) => void; 
+  updateChatArray: (newResponse: string) => void; 
   onStateChange: (state: boolean) => void;
 }
 
-const QuestionsComponent: React.FC<ChildProps> = ({updateChatResponse, onStateChange})=>{
+const QuestionsComponent: React.FC<ChildProps> = ({updateChatArray, onStateChange})=>{
   
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number> (0)
-  const [answers, setAnswers]= useState<string[]>([])
-  const [questionsCompleted, setQuestionsCompleted] = useState<boolean>(false)
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0); 
+  const [answers, setAnswers]= useState<string[]>([]); 
+  const [questionsCompleted, setQuestionsCompleted] = useState<boolean>(false); 
+  const [hoveredButtonIndex, setHoveredButtonIndex] = useState<number | null>(null); 
 
   const questions: Question[] = [
     {
       text: 'Select your programming language',
       options: ['JavaScript', 'TypeScript', 'Python', 'Java'],
-      colors: ['bg-[#9BC4CB]', 'bg-[#CFEBDF]', 'bg-[#83886F]', 'bg-[#DBEFBC]']
+      colors: ['#9BC4CB', '#CFEBDF', '#83886F', '#DBEFBC'], 
+      colorsHovered: ['#B0DEE6', '#DDFFF0', '#ADB48F', '#EEFFD3']
     },
     {
       text: 'Choose a topic',
       options: ['Algorithms', 'Data Structures'],
-      colors: ['bg-[#DBEFBC]', 'bg-[#9BC4CB]']
-
+      colors: ['#DBEFBC', '#9BC4CB'], 
+      colorsHovered: ['#EEFFD3', '#B0DEE6']
     }, 
     {
       text: 'Select level of difficulty',
       options: ['Easy', 'Medium', 'Hard'],
-      colors: ['bg-[#CFEBDF]', 'bg-[#DBEFBC]', 'bg-[#83886F]']
+      colors: ['#CFEBDF', '#DBEFBC', '#83886F'], 
+      colorsHovered: ['#DDFFF0', '#EEFFD3', '#ADB48F']
     }
   ]
 
@@ -52,13 +57,21 @@ const QuestionsComponent: React.FC<ChildProps> = ({updateChatResponse, onStateCh
     }
   }, [answers]);
 
-  useEffect(() => {
-    console.log("Updated questionsCompleted state variable:", questionsCompleted);
-  }, [questionsCompleted]);
+//   useEffect(() => {
+//     console.log("Updated questionsCompleted state variable:", questionsCompleted);
+//   }, [questionsCompleted]);
 
 //   useEffect(() => {
 //     console.log("Updated current question index:", currentQuestionIndex);
 //   }, [currentQuestionIndex]); 
+
+  const handleMouseEnter = (buttonIndex: number) => {
+    setHoveredButtonIndex(buttonIndex); 
+  }
+
+  const handleMouseLeave = () => {
+    setHoveredButtonIndex(null);
+  }
 
   let currentQuestion = questions[currentQuestionIndex]
 
@@ -83,9 +96,8 @@ const QuestionsComponent: React.FC<ChildProps> = ({updateChatResponse, onStateCh
       }
 
       const sessionId = getSessionId();
-      console.log('This is the sessionId generated when the questions are completed:', sessionId); 
+    //   console.log('This is the sessionId generated when the questions are completed:', sessionId); 
       try {
-        
         const parameters = {
           sessionId, 
           language: `${answers[0]}`, 
@@ -93,8 +105,7 @@ const QuestionsComponent: React.FC<ChildProps> = ({updateChatResponse, onStateCh
           difficulty: `${answers[2]}`, 
           userMessage: "Let's start the interview."
         };
-        console.log('These are the parameters being sent in the post request:', parameters); 
-        // console.log("These are the parameters being sent to the server:", parameters); 
+        // console.log('These are the parameters being sent in the post request:', parameters); 
         const res = await fetch('/api/message', { 
           method: 'POST', 
           headers: {
@@ -103,8 +114,8 @@ const QuestionsComponent: React.FC<ChildProps> = ({updateChatResponse, onStateCh
           body: JSON.stringify({ parameters }), 
         });
         const data = await res.json(); 
-        console.log('This is the data returned from the initial request to the api:', data.message); 
-        updateChatResponse(data.message);
+        //console.log('This is the data returned from the initial request to the api:', data.message); 
+        updateChatArray(data.message);
       } catch (error) {
         console.error('Error fetching OpenAI API:', error); 
       }
@@ -114,20 +125,27 @@ const QuestionsComponent: React.FC<ChildProps> = ({updateChatResponse, onStateCh
   }
 
   return (
-    <div>
+    <>
       {!questionsCompleted && answers.length < questions.length ? (
-        <div>
-          <h1 className='question'>{currentQuestion.text}</h1>
-          {currentQuestion.options.map((option: string, index: number)=>(
-            <button className='option' key={index} onClick={()=> handleAnswer(option)}>{option}</button>
+        <div className='chat-questions-container chat-content'>
+          <h1 className='chat-content-elems chat-content-question'>{currentQuestion.text}</h1>
+          <div className='chat-content-elems'>
+          {currentQuestion.options.map((option: string, index: number) => (
+            <button className='chat-content-option' 
+              key={index} 
+              onMouseEnter={() => handleMouseEnter(index)}
+              onMouseLeave={handleMouseLeave}
+              style={{ backgroundColor: hoveredButtonIndex === index ? currentQuestion.colorsHovered[index] : currentQuestion.colors[index]}}
+              onClick={()=> handleAnswer(option)}>{option}
+            </button>
           ))}
+          </div>
         </div>
       ) : (
         <div>
-          
         </div>
       )}
-    </div>
+    </>
   )
 }
 

@@ -1,36 +1,89 @@
-import { useState, useEffect, ChangeEvent } from 'react';
+import React,{ JSX, useState, useEffect, ChangeEvent } from 'react';
 import './styles/app.css';
 import { FaArrowUp } from "react-icons/fa6";
 import QuestionsComponent from './components/InitialQuestions'
 import logo from './assets/InterviewBuddyLogo.png';
+import ReactMarkdown from 'react-markdown';
 
+
+interface Message {
+  message: string;
+}
 
 const App: React.FC = () => {
 
   const [userResponse, setUserResponse] = useState<string>(''); 
   const [questionsCompleted, setQuestionsCompleted] = useState<boolean>(false); 
   const [chatResponse, setChatResponse] = useState<string>('');
-  const [chatHistory, setChatHistory] = useState([]); 
-  const [isHovered, setIsHovered] = useState(false);
+  const [fullChat, setFullChat] = useState<Message[]>([]); 
+  const [isSendButtonHovered, setIsSendButtonHovered] = useState<boolean>(false);
+  const [readyToSendResponse, setReadyToSendResponse] = useState<boolean>(false); 
+
+//   useEffect(() => {
+//     console.log('Updated userResponse state variable in parent:', userResponse);
+//   }, [userResponse]);
+
+//   useEffect(() => {
+//     console.log('Updated questionsCompleted state variable in parent:', questionsCompleted);
+//   }, [questionsCompleted]);
+
+  // useEffect(() => {
+  //   console.log('Updated fullChat state variable in parent:', fullChat);
+  // }, [fullChat]);
 
   useEffect(() => {
-    console.log('Updated chatResponse state variable in parent:', chatResponse);
+    // console.log('Updated chatResponse state variable in parent:', chatResponse);
+    if (chatResponse) {
+      updateChatArray(chatResponse); 
+    }
   }, [chatResponse]);
 
   useEffect(() => {
-    console.log('Updated userResponse state variable in parent:', userResponse);
-  }, [userResponse]);
-
-  useEffect(() => {
-    console.log('Updated questionsCompleted state variable in parent:', questionsCompleted);
-  }, [questionsCompleted]);
+    if (readyToSendResponse === true) {
+    //   console.log('This is the user\'s response:', userResponse); 
+      updateChatArray(userResponse); 
+      const sendResponse = async () => {
+        if (!userResponse) return; //! add error message
+             
+        const sessionId = getSessionId();
+            
+        try {
+          const parameters = {
+            sessionId,
+            userMessage: userResponse, 
+          }; 
+        //   console.log('This is the userResponseInfo being sent to the backend:', parameters); 
+          const res = await fetch('/api/message', { 
+            method: 'POST', 
+            headers: {
+              'Content-Type': 'application/json', 
+            }, 
+            body: JSON.stringify({ parameters }),
+          });
+          const data = await res.json(); 
+        //   console.log('This is the data returned from the subsequent request to the api:', data.message); 
+          setChatResponse(data.message);
+          setReadyToSendResponse(false); 
+        } catch (error) {
+          console.error('Error fetching OpenAI API:', error); 
+          setUserResponse(''); 
+        }
+      } 
+      sendResponse();  
+    }
+  }, [readyToSendResponse]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setUserResponse(e.target.value);
   }
 
-  const updateChatResponse = (newResponse: string) => {
-    setChatResponse(newResponse); 
+  const updateChatArray = (newResponse: string) => {
+    const newMessage = {
+      message: newResponse,
+    }
+    const updatedChatArray = [...fullChat, newMessage]
+    setFullChat(updatedChatArray); 
+    setUserResponse(''); 
   }
 
   const handleQuestionsComponentState = (state: boolean) => {
@@ -46,45 +99,29 @@ const App: React.FC = () => {
     return sessionId;
   }
 
-  const sendResponse = async () => {
-    console.log('This is value:', userResponse); 
-    if (!userResponse) return; //! add error message
-     
-    const sessionId = getSessionId();
-    
-    try {
-      const userResponseInfo = {
-        sessionId,
-        userMessage: userResponse, 
-      }; 
+  const renderFullChat = () => {
+    if (fullChat.length === 0) return; 
 
-      const res = await fetch('/api/message', { 
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json', 
-        }, 
-        body: JSON.stringify({ userResponseInfo }),
-      });
-      const data = await res.json(); 
-      setChatResponse(data);
-      setUserResponse(''); 
-    } catch (error) {
-      console.error('Error fetching OpenAI API:', error); 
-      setUserResponse(''); 
-    }
-  }
-
-//   const renderResponse = () => {
-//     if (!response) {
-//       return (
-
-//       )
-//     }
-
-//     return (
-
-//     )
-//   }
+    return (
+      <> 
+        {fullChat.map((chat: Message, index: number) => {
+          if (index % 2 === 0) {
+            return (
+              <div key={index} className='chat-content'>
+                <ReactMarkdown>{chat.message}</ReactMarkdown>
+              </div>
+            ); 
+          } else if (index % 2 !== 0) {
+            return (
+              <div key={index} className='user-content'>
+                <p>{chat.message}</p>
+              </div>
+            ); 
+          }
+        })}
+      </>
+    )
+  }; 
 
   return (
     <div>
@@ -95,12 +132,8 @@ const App: React.FC = () => {
         <div className="chat-area">
           <div className="content-wrapper">
             <div className="messages-container">
-            {chatResponse}
-            {questionsCompleted}
-            <QuestionsComponent updateChatResponse={updateChatResponse} onStateChange={handleQuestionsComponentState}/>
-
-
-
+            <QuestionsComponent updateChatArray={updateChatArray} onStateChange={handleQuestionsComponentState}/>
+            {renderFullChat()}
           </div>
         </div>
         <div className="user-area">
@@ -109,10 +142,10 @@ const App: React.FC = () => {
           </div>
           <div className="button-wrapper">
             <button className="send-button" 
-              onClick={sendResponse}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}>
-              <FaArrowUp style={{fontSize:'1.5em', strokeWidth: '2', backgroundColor: isHovered ? '#7c886a' : '#DBEFBC'}}/>
+              onClick={() => setReadyToSendResponse(true)}
+              onMouseEnter={() => setIsSendButtonHovered(true)}
+              onMouseLeave={() => setIsSendButtonHovered(false)}>
+              <FaArrowUp style={{fontSize:'1.5em', strokeWidth: '2', backgroundColor: isSendButtonHovered ? '#7c886a' : '#DBEFBC'}}/>
             </button>
           </div>
           </div>
@@ -123,7 +156,6 @@ const App: React.FC = () => {
 };
 
 export default App;
-
 
 
 
