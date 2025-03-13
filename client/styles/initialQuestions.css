@@ -1,0 +1,20 @@
+
+.chat-questions-container {
+  padding: 5px 5px; 
+}
+
+.chat-content-question {
+  font-size: 19px;
+  font-weight: 350;
+}
+
+.chat-content-option {
+  padding: 5px 9px; 
+  margin: 2px 6px; 
+  border: 1px solid #b7c89e; 
+  border-radius: 5px;
+}
+
+/* .chat-content-option:hover {
+  background-color:
+} */

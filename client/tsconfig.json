@@ -5,6 +5,8 @@
       "module": "ESNext",
       "moduleResolution": "Node",
       "jsx": "react-jsx",
+      "types": ["react", "react-dom"],
+      // "lib": ["dom", "es2015"],
       "composite": true,
       "noEmit": false,
     },
