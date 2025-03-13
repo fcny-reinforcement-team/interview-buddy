@@ -47,7 +47,7 @@ Interview Buddy is a AI Chatbot that helps software engineers prepare for techni
 3. Start client and server
 
 ```bash
- npm start run dev
+ npm run dev
 ```
 
 ## Contributing
