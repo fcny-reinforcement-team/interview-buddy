@@ -2,14 +2,14 @@
 <img src="client/assets/interviewBuddy.png" alt="logo" >
 
 # Interview-Buddy
-Interview Buddy is a AI Chatbot that helps software engineers prepare for technical interviews using the OpenAI gpt-3.5-turbo model. Users can select their preferred programming language, difficulty level, and focus on either data structures or algorithms to generate relevant practice questions. They can also enter their answers and receive feedback to enhance their preparation.
+Interview Buddy is a AI Chatbot that helps software engineers prepare for technical interviews using the OpenAI gpt-3.5-turbo model. Users can select their preferred programming language, difficulty level, and focus on either data structures or algorithms to generate relevant practice questions. They can also enter their answers and receive feedback to enhance their preparation. 
 
 ## Tech Stack 
 [![My Skills](https://skillicons.dev/icons?i=react,express,nodejs,webpack,figma&theme=light)](https://skillicons.dev)
 
 - OpenAI gpt-3.5-turbo model
 ## User Guide
-<img src="client/assets/overview.png" alt="Overview" width="600">
+<img src="client/assets/homepage.png" alt="Homepage" width="600">
 
 ### Setup Instructions
 
@@ -34,4 +34,4 @@ Interview Buddy is a AI Chatbot that helps software engineers prepare for techni
 - Daisha Davis | [Github](https://github.com/daishadavis)
 - Cindy Rodriguez-Llivipuma | [Github](https://github.com/csrl23)
 - Mike Thurstlic | [Github](https://github.com/thurstlic7)
-- Bryan Duncan | [Github](https://github.com/Bduncan87)
+- Bryan Duncan | [Github](https://github.com/Bduncan87) 
