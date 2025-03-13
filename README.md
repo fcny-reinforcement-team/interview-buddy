@@ -6,7 +6,7 @@ Interview Buddy is a AI Chatbot that helps software engineers prepare for techni
 
 ## Tech Stack
 
-[![My Skills](https://skillicons.dev/icons?i=react,express,nodejs,webpack,figma&theme=light)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=react,express,nodejs,webpack,typescript,html,css,figma&theme=light)](https://skillicons.dev)
 
 - OpenAI gpt-3.5-turbo model
 
@@ -22,6 +22,11 @@ Interview Buddy is a AI Chatbot that helps software engineers prepare for techni
 ## User Guide
 
 <img src="client/assets/homepage.png" alt="Homepage" width="600">
+
+- Start by entering your programming language of choice
+- Followed by topic, Data Structures or Algorithms 
+- Chose level of difficulty: Easy, Medium or Hard
+- Enter your answer in in chat box for feedback or a new problem!
 
 ### Setup Instructions
 
