@@ -1,4 +1,4 @@
-<img src="client/assets/interviewBuddyLogo.png" alt="logo">
+<img src="client/assets/Logo.png" alt="logo" width="500">
 
 # Interview-Buddy
 
